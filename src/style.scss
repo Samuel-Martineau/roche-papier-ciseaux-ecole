@@ -1,0 +1,78 @@
+@import './utils.scss';
+@import './global.scss';
+
+// Application du dégradé à la page
+html {
+  width: 100%;
+  height: 100%;
+  @include animated_gradient_background(5s, #1abc9c, #3498db, #9b59b6);
+}
+
+// Affichage des scores (le score actuel et le meilleur score) dans le haut à gauche de la page
+#scores {
+  color: white;
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  h1 {
+    span {
+      font-weight: lighter;
+    }
+  }
+}
+
+// Affichage du jeu au millieu de l'écran
+main {
+  // Définition de variables
+  $lifebar-width: 25px;
+  $padding: 25px;
+
+  background-color: white;
+  height: 400px;
+  display: flex;
+
+  // Déplacement au millieu de l'écran
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  // Affichage de la barre de vie
+  #lifebar {
+    position: absolute;
+    bottom: 0;
+    height: 100%;
+    width: $lifebar-width;
+    transition: all 250ms ease-in-out;
+
+    // Définition des couleurs
+    $lifebar-levels: (
+      'high': (
+        #2ecc71,
+        #16a085,
+      ),
+      'medium': (
+        #f1c40f,
+        #e67e22,
+      ),
+      'low': (
+        #c0392b,
+        #e74c3c,
+      ),
+    );
+
+    // Boucle pour générer le gradient en fonction des couleurs définies
+    @each $level, $colors in $lifebar-levels {
+      &[level='#{$level}'] {
+        @include animated_gradient_background(5s, $colors...);
+      }
+    }
+  }
+
+  // Ajout de padding autour de la section du contenu du jeux
+  #content {
+    padding: $padding;
+    // Il faut compenser pour la barre de vie (elle est en position absolute)
+    padding-left: $padding + $lifebar-width;
+  }
+}

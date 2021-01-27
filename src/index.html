@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Roche, papier, ciseaux!</title>
+    <link rel="stylesheet" href="./style.scss" />
+    <script defer src="./script.ts"></script>
+  </head>
+  <body>
+    <!-- Affichage des scores -->
+    <div id="scores">
+      <h1 id="score">Score: <span>10</span></h3>
+      <h1 id="best-score">Meilleur score: <span>5</span></h3>
+    </div>
+    <!-- Section principale -->
+    <main>
+      <div id="lifebar"></div>
+      <div id="content">
+        <h1>Roche, papier, ciseaux!</h1>
+        <hr />
+        <!-- Écran de sélection de l'item -->
+        <section id="select">
+          <select name="choice" id="item">
+            <option disabled selected value="default">
+              Choisir une option
+            </option>
+            <option value="ROCK">Roche</option>
+            <option value="PAPER">Papier</option>
+            <option value="CISOR">Ciseaux</option>
+          </select>
+          <button disabled id="fight">Go!</button>
+        </section>
+        <!-- Écran d'affichage des résultats d'un combat -->
+        <section id="result">
+          <div id="message"></div>
+          <button id="next-fight">Prochain combat!</button>
+        </section>
+      </div>
+    </main>
+  </body>
+</html>

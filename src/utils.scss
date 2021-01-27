@@ -1,0 +1,20 @@
+// Fonction permettant de générer un arrière-plan en mouvement
+@mixin animated_gradient_background($duration, $colors...) {
+  // Génération d'un ID unique comme nom de l'animation pour que cette fonction puisse être appelée à l'infini
+  $id: unique-id();
+
+  // Création d'un arrière plan trop grand qui est un dégradé
+  background-image: linear-gradient(to bottom right, $colors);
+  background-size: 300% 300%;
+
+  // Déplacement de l'arrière-plan en fonction du plan
+  animation: $id $duration linear infinite alternate;
+  @keyframes #{$id} {
+    0% {
+      background-position: 0% 0%;
+    }
+    100% {
+      background-position: 100% 100%;
+    }
+  }
+}
