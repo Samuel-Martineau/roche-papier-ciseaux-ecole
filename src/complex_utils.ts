@@ -65,7 +65,7 @@ export async function endFight(
 
   if (livesState.getValue() <= 0) {
     nextFightButton.setAttribute('disabled', 'true');
-    await wait(100);
+    await wait(1000);
     soundPlayer.play(windowsLogoffSound);
     await wait(1500);
     selectPanel('defeat');
