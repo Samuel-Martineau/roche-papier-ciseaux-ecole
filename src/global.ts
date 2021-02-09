@@ -1,6 +1,12 @@
-import { maxLives } from './constants';
-import { saveBestScore, updateLifebar, updateScoresDiv } from './utils';
-import type { createDisplayedTimer } from './utils';
+import { maxLives, toggleSoundButton } from './constants';
+import {
+  createSoundPlayer,
+  loadBestScore,
+  saveBestScore,
+  updateLifebar,
+  updateScoresDiv,
+} from './simple_utils';
+import type { createDisplayedTimer } from './simple_utils';
 
 /**
  * @description Utilitaire pour gérer des states
@@ -29,12 +35,11 @@ function createState<T>(startingValue?: T) {
 
 export const livesState = createState(maxLives);
 export const scoreState = createState(0);
-export const bestScoreState = createState(
-  JSON.parse(localStorage.getItem('bestScore')) || 0,
-);
+export const bestScoreState = createState(loadBestScore());
 export const selectTimer = createState<
   ReturnType<typeof createDisplayedTimer> | undefined
 >();
+export const soundPlayer = createSoundPlayer(toggleSoundButton);
 
 livesState.subscribe((newLives) => {
   updateLifebar(newLives);

@@ -68,8 +68,13 @@ export const nextFightButton = resultSection.querySelector(
   '#next-fight',
 ) as HTMLButtonElement;
 
-export const restartButton = defeatSection.querySelector('#restart');
+export const restartButton = defeatSection.querySelector(
+  '#restart',
+) as HTMLButtonElement;
 
+export const toggleSoundButton = document.querySelector(
+  '#toggle-sound',
+) as HTMLDivElement;
 export const lifebarDiv = document.querySelector('#lifebar') as HTMLDivElement;
 export const scoresDiv = document.querySelector('#scores') as HTMLDivElement;
 
@@ -96,9 +101,6 @@ export const windowsLogoffSound = new Audio(
 );
 export const windowsLogonSound = new Audio(
   require('./sounds/Windows_Logon_Sound.wav'),
-);
-export const windowsDefaultSound = new Audio(
-  require('./sounds/Windows_Default.wav'),
 );
 
 // Définition de constantes de configuration

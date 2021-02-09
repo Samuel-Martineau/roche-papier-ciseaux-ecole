@@ -1,27 +1,47 @@
+// Les utilitaires simples sont ceux qui n'impliquent pas de state global
+
 import {
   bestScoreValueSpan,
   defeatSection,
-  fightButton,
   FightResult,
-  finalScoreValueSpan,
   Item,
-  itemInput,
   itemsASCIIArt,
   lifebarDiv,
   maxLives,
-  nextFightButton,
   resultSection,
   resultSectionMessageDiv,
   scoreValueSpan,
   selectSection,
-  timeToSelect,
-  windowsCriticalStopSound,
-  windowsDefaultSound,
-  windowsExclamationSound,
-  windowsLogoffSound,
-  windowsLogonSound,
+  toggleSoundButton,
 } from './constants';
-import { selectTimer, livesState, scoreState } from './global';
+
+/**
+ * @description Créateur de contrôleur de son
+ */
+export function createSoundPlayer(toggleButton: HTMLElement) {
+  const allSounds: HTMLAudioElement[] = [];
+  let enabled = JSON.parse(localStorage.getItem('soundEnabled')) ?? true;
+  updateUI();
+
+  function updateUI() {
+    if (enabled) toggleButton.textContent = '🔉';
+    else toggleButton.textContent = '🔇';
+  }
+
+  return {
+    play(sound: HTMLAudioElement) {
+      sound.volume = +enabled;
+      allSounds.push(sound);
+      sound.play();
+    },
+    toggle() {
+      enabled = !enabled;
+      localStorage.setItem('soundEnabled', JSON.stringify(enabled));
+      updateUI();
+      allSounds.forEach((s) => (s.volume = +enabled));
+    },
+  };
+}
 
 /**
  * @description Retourne une fonction qui appelle la fonction donnée en argument avec les arguments donnés en argument
@@ -41,6 +61,13 @@ export function toFactory<T extends (...args: any[]) => any>(
  */
 export const wait = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
+
+/**
+ * @description Charge le meilleur score à partir du localStorage
+ */
+export function loadBestScore(): number {
+  return JSON.parse(localStorage.getItem('bestScore')) ?? 0;
+}
 
 /**
  * @description Met à jour les textes qui affichent les scores (le score actuel et le meilleur score)
@@ -156,58 +183,6 @@ export function getRandomItem(): Item {
 }
 
 /**
- * @description Prépare le jeu pour le prochain combat
- */
-export function nextFight(): void {
-  itemInput.value = 'default';
-  resultSectionMessageDiv.innerHTML = '';
-  fightButton.disabled = true;
-  selectPanel('select');
-  selectTimer.set(
-    createDisplayedTimer(
-      timeToSelect,
-      '#timer',
-      toFactory(endFight, undefined, getRandomItem()),
-    ),
-  );
-}
-
-/**
- * @description Gère la fin du combat
- * @param selectedItem L'item sélectionné par le joueur
- * @param computerItem L'item sélectionné par l'ordinateur
- */
-export async function endFight(
-  selectedItem: Item | undefined,
-  computerItem: Item,
-): Promise<void> {
-  selectTimer.getValue()?.stop();
-  const fightResult = getFightResult(selectedItem, computerItem);
-  showFightResult(selectedItem, computerItem, fightResult);
-
-  if (fightResult === FightResult.COMPUTER_WINS) {
-    livesState.set(livesState.getValue() - 1);
-    windowsCriticalStopSound.play();
-  } else {
-    scoreState.set(scoreState.getValue() + 1);
-    windowsExclamationSound.play();
-  }
-
-  if (livesState.getValue() <= 0) {
-    windowsLogoffSound.play();
-    nextFightButton.setAttribute('disabled', 'true');
-    await wait(2500);
-    selectPanel('defeat');
-    finalScoreValueSpan.textContent = scoreState.getValue().toString();
-    nextFightButton.removeAttribute('disabled');
-    scoreState.reset();
-    await wait(500);
-    livesState.reset();
-    windowsLogonSound.play();
-  }
-}
-
-/**
  * @description Une fonction qui permet d'afficher un minuteur
  * @param seconds Le nombre de secondes que va durer le minuteur
  * @param element L'élément ciblé dans lequel le minuteur va être affiché
@@ -224,7 +199,6 @@ export function createDisplayedTimer(
     const steps = 4;
     const delay = 1000 / steps;
     for (let i = seconds; i > 0; i--) {
-      windowsDefaultSound.play();
       for (let j = 0; j < steps; j++) {
         if (stopped) return;
         if (j === 0) element.textContent = i.toString();

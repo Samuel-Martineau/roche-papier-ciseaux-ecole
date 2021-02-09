@@ -5,11 +5,13 @@ import {
   Item,
   restartButton,
   windowsStartupSound,
+  toggleSoundButton,
 } from './constants';
-import { nextFight, selectPanel, getRandomItem, endFight } from './utils';
-import { livesState, bestScoreState, scoreState } from './global';
+import { selectPanel, getRandomItem } from './simple_utils';
+import { livesState, bestScoreState, scoreState, soundPlayer } from './global';
+import { endFight, nextFight } from './complex_utils';
 
-windowsStartupSound.play();
+soundPlayer.play(windowsStartupSound);
 
 // Création de variables pour gérer l'état de la partie
 let selectedItem: Item | undefined;
@@ -19,6 +21,9 @@ selectPanel('select');
 livesState.reset();
 bestScoreState.reset();
 scoreState.reset();
+
+// Bascule de l'état du son lorsque le bouton est cliqué
+toggleSoundButton.addEventListener('click', soundPlayer.toggle);
 
 // Sélection d'un item lorsque l'input est changé
 itemInput.addEventListener('change', () => {

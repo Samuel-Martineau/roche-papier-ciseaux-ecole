@@ -1,7 +1,7 @@
 @import './utils.scss';
 @import './global.scss';
 
-// Affichage des scores (le score actuel et le meilleur score) dans le haut à gauche de la page
+// Affichage des scores (le score actuel et le meilleur score) dans le haut à gauche de l'écran
 #scores {
   color: white;
   position: fixed;
@@ -12,6 +12,16 @@
       font-weight: lighter;
     }
   }
+}
+
+// Affichage du bouton pour activer / désactiver l'audio dans le bas à droite de l'écran
+#toggle-sound {
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+  font-size: 60px;
+  cursor: pointer;
+  user-select: none;
 }
 
 // Affichage du jeu au millieu de l'écran
