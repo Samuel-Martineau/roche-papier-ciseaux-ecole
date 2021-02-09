@@ -11,3 +11,9 @@ hr {
   border-top: lightgray 5px dashed;
   margin: 10px 0;
 }
+
+html {
+  width: 100%;
+  height: 100%;
+  @include animated_gradient_background(5s, #1abc9c, #3498db, #9b59b6);
+}

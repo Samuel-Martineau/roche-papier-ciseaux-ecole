@@ -1,13 +1,6 @@
 @import './utils.scss';
 @import './global.scss';
 
-// Application du dégradé à la page
-html {
-  width: 100%;
-  height: 100%;
-  @include animated_gradient_background(5s, #1abc9c, #3498db, #9b59b6);
-}
-
 // Affichage des scores (le score actuel et le meilleur score) dans le haut à gauche de la page
 #scores {
   color: white;

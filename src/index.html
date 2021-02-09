@@ -25,16 +25,23 @@
             <option disabled selected value="default">
               Choisir une option
             </option>
-            <option value="ROCK">Roche</option>
-            <option value="PAPER">Papier</option>
-            <option value="CISOR">Ciseaux</option>
+            <option value="rock">Roche</option>
+            <option value="paper">Papier</option>
+            <option value="cisor">Ciseaux</option>
           </select>
           <button disabled id="fight">Go!</button>
+          <h2 id="timer"></h2>
         </section>
         <!-- Écran d'affichage des résultats d'un combat -->
         <section id="result">
           <div id="message"></div>
           <button id="next-fight">Prochain combat!</button>
+        </section>
+        <!-- Écran de défaite -->
+        <section id="defeat">
+          <h2>Vous avez perdu</h2>
+          <h3>Votre score est de <span id="final-score"></span></h3>
+          <button id="restart">Recommencer</button>
         </section>
       </div>
     </main>

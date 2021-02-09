@@ -1,16 +1,27 @@
 import {
   bestScoreValueSpan,
+  defeatSection,
   fightButton,
   FightResult,
+  finalScoreValueSpan,
   Item,
   itemInput,
+  itemsASCIIArt,
   lifebarDiv,
   maxLives,
+  nextFightButton,
   resultSection,
   resultSectionMessageDiv,
   scoreValueSpan,
   selectSection,
+  timeToSelect,
+  windowsCriticalStopSound,
+  windowsDefaultSound,
+  windowsExclamationSound,
+  windowsLogoffSound,
+  windowsLogonSound,
 } from './constants';
+import { selectTimer, livesState, scoreState } from './global';
 
 /**
  * @description Retourne une fonction qui appelle la fonction donnée en argument avec les arguments donnés en argument
@@ -42,13 +53,6 @@ export function updateScoresDiv(score: number, bestScore: number): void {
 }
 
 /**
- * @description Charge le meilleur score à partir du localStorage
- */
-export function loadBestScore(): number {
-  return JSON.parse(localStorage.getItem('bestScore')) || 0;
-}
-
-/**
  * @description Sauvegarde le meilleur score dans le localStorage
  * @param score
  */
@@ -60,12 +64,27 @@ export function saveBestScore(score: number): void {
  * @description Permet de changer le panneau qui est affiché (la sélection de l'item ou le résultat du combat)
  * @param newPanel
  */
-export function selectPanel(newPanel: 'select' | 'result'): void {
-  const toHide = newPanel === 'select' ? resultSection : selectSection;
-  const toShow = newPanel === 'select' ? selectSection : resultSection;
+export function selectPanel(newPanel: 'select' | 'result' | 'defeat'): void {
+  const hide = (el: HTMLElement) => (el.style.display = 'none');
+  const show = (el: HTMLElement) => (el.style.display = 'block');
 
-  toShow.style.display = 'block';
-  toHide.style.display = 'none';
+  switch (newPanel) {
+    case 'select':
+      show(selectSection);
+      hide(resultSection);
+      hide(defeatSection);
+      break;
+    case 'result':
+      show(resultSection);
+      hide(selectSection);
+      hide(defeatSection);
+      break;
+    case 'defeat':
+      show(defeatSection);
+      hide(resultSection);
+      hide(selectSection);
+      break;
+  }
 }
 
 /**
@@ -93,17 +112,15 @@ export function getFightResult(
   selectedItem: Item,
   computerItem: Item,
 ): FightResult {
-  if (
-    (selectedItem === Item.ROCK && computerItem === Item.CISOR) ||
-    (selectedItem === Item.CISOR && computerItem === Item.PAPER) ||
-    (selectedItem === Item.PAPER && computerItem === Item.ROCK)
-  ) {
+  if (selectedItem === undefined) return FightResult.COMPUTER_WINS;
+  else if (
+    (selectedItem === Item.rock && computerItem === Item.cisor) ||
+    (selectedItem === Item.cisor && computerItem === Item.paper) ||
+    (selectedItem === Item.paper && computerItem === Item.rock)
+  )
     return FightResult.USER_WINS;
-  } else if (selectedItem === computerItem) {
-    return FightResult.TIE;
-  } else {
-    return FightResult.COMPUTER_WINS;
-  }
+  else if (selectedItem === computerItem) return FightResult.TIE;
+  else return FightResult.COMPUTER_WINS;
 }
 
 /**
@@ -113,15 +130,15 @@ export function getFightResult(
  * @param gameResult
  */
 export function showFightResult(
-  selectedItem: Item,
+  selectedItem: Item | undefined,
   computerItem: Item,
   gameResult: FightResult,
 ): void {
   const message = `
 <pre>
-${selectedItem}
+${itemsASCIIArt[selectedItem || 'unknown']}
 <b>V.S.</b>
-${computerItem}
+${itemsASCIIArt[computerItem]}
 </pre>
 <hr>
 ${gameResult}
@@ -132,12 +149,95 @@ ${gameResult}
 }
 
 /**
+ * @description Retourne un item aléatoire
+ */
+export function getRandomItem(): Item {
+  return Item[Object.values(Item)[Math.round(Math.random() * 2)]];
+}
+
+/**
  * @description Prépare le jeu pour le prochain combat
  */
 export function nextFight(): void {
   itemInput.value = 'default';
   resultSectionMessageDiv.innerHTML = '';
   fightButton.disabled = true;
-  selectSection.style.display = 'block';
-  resultSection.style.display = 'none';
+  selectPanel('select');
+  selectTimer.set(
+    createDisplayedTimer(
+      timeToSelect,
+      '#timer',
+      toFactory(endFight, undefined, getRandomItem()),
+    ),
+  );
+}
+
+/**
+ * @description Gère la fin du combat
+ * @param selectedItem L'item sélectionné par le joueur
+ * @param computerItem L'item sélectionné par l'ordinateur
+ */
+export async function endFight(
+  selectedItem: Item | undefined,
+  computerItem: Item,
+): Promise<void> {
+  selectTimer.getValue()?.stop();
+  const fightResult = getFightResult(selectedItem, computerItem);
+  showFightResult(selectedItem, computerItem, fightResult);
+
+  if (fightResult === FightResult.COMPUTER_WINS) {
+    livesState.set(livesState.getValue() - 1);
+    windowsCriticalStopSound.play();
+  } else {
+    scoreState.set(scoreState.getValue() + 1);
+    windowsExclamationSound.play();
+  }
+
+  if (livesState.getValue() <= 0) {
+    windowsLogoffSound.play();
+    nextFightButton.setAttribute('disabled', 'true');
+    await wait(2500);
+    selectPanel('defeat');
+    finalScoreValueSpan.textContent = scoreState.getValue().toString();
+    nextFightButton.removeAttribute('disabled');
+    scoreState.reset();
+    await wait(500);
+    livesState.reset();
+    windowsLogonSound.play();
+  }
+}
+
+/**
+ * @description Une fonction qui permet d'afficher un minuteur
+ * @param seconds Le nombre de secondes que va durer le minuteur
+ * @param element L'élément ciblé dans lequel le minuteur va être affiché
+ */
+export function createDisplayedTimer(
+  seconds: number,
+  elementSelector: string,
+  onDone: () => void,
+) {
+  const element = document.querySelector(elementSelector) as HTMLElement;
+  let stopped = false;
+
+  new Promise(async () => {
+    const steps = 4;
+    const delay = 1000 / steps;
+    for (let i = seconds; i > 0; i--) {
+      windowsDefaultSound.play();
+      for (let j = 0; j < steps; j++) {
+        if (stopped) return;
+        if (j === 0) element.textContent = i.toString();
+        else element.textContent += '.';
+        await wait(delay);
+      }
+    }
+    onDone();
+  });
+
+  return {
+    stop() {
+      stopped = true;
+    },
+  };
 }
