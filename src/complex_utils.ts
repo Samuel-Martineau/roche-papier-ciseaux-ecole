@@ -65,9 +65,9 @@ export async function endFight(
 
   if (livesState.getValue() <= 0) {
     nextFightButton.setAttribute('disabled', 'true');
-    await wait(500);
+    await wait(100);
     soundPlayer.play(windowsLogoffSound);
-    await wait(2000);
+    await wait(1500);
     selectPanel('defeat');
     finalScoreValueSpan.textContent = scoreState.getValue().toString();
     nextFightButton.removeAttribute('disabled');
