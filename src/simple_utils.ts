@@ -12,7 +12,6 @@ import {
   resultSectionMessageDiv,
   scoreValueSpan,
   selectSection,
-  toggleSoundButton,
 } from './constants';
 
 /**
@@ -163,7 +162,7 @@ export function showFightResult(
 ): void {
   const message = `
 <pre>
-${itemsASCIIArt[selectedItem || 'unknown']}
+${itemsASCIIArt[selectedItem ?? 'unknown']}
 <b>V.S.</b>
 ${itemsASCIIArt[computerItem]}
 </pre>
